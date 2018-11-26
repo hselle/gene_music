@@ -2,6 +2,12 @@
 import re
 from wavebender import *
 from itertools import *
+try:
+    from itertools import zip_longest
+except ImportError:
+    from itertools import imap as map
+    from itertools import izip as zip
+    from itertools import izip_longest as zip_longest
 
 def sbagen_phrase(phrase):
     '''
@@ -26,7 +32,7 @@ def sbagen_line(line, length=None):
     '''
     Given a sequence of (l, r), (l, r), return a sequence of (l, l), (r, r).
     '''
-    return izip(*(imap(lambda s: islice(s, length), sbagen_phrase(phrase)) for phrase in line.split()))
+    return zip(*(imap(lambda s: islice(s, length), sbagen_phrase(phrase)) for phrase in line.split()))
 
 def sequencer(*seqs):
     '''
@@ -34,10 +40,7 @@ def sequencer(*seqs):
     '''
     return chain(*(islice(generator, duration) for generator, duration in seqs))
 
-if sys.argv[1:]:
-    channels = sbagen_line(' '.join(sys.argv[1:]))
-else:
-    sys.exit(1)
+channels = sbagen_line(' '.join(sys.argv[1:]))
 
 samples = compute_samples(channels)
-write_wavefile(stdout, samples)
+write_wavefile("test_file_sb.wav", samples)
